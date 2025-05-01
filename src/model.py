@@ -42,7 +42,7 @@ def create_conversational_rag_chain() -> RunnableWithMessageHistory:
     llm = ChatOllama(
         model=settings.chat_model_name,
         temperature=settings.temperature,
-        base_url='http://localhost:11434/',
+        base_url='http://ollama:11434/',
     )
     embeddings = HuggingFaceEmbeddings(
         model_name=settings.embed_model_name,
@@ -106,7 +106,7 @@ conversational_rag_chain = create_conversational_rag_chain()
 
 def get_rag_answer(session_id: str, user_input: str) -> str:
     response = conversational_rag_chain.invoke(
-        user_input,
+        {'input': user_input},
         config={'configurable': {'session_id': session_id}},
     )
     return response['answer']
