@@ -11,7 +11,7 @@ def main():
             {'role': 'assistant', 'content': 'How can I help you?'}
         ]
 
-    if prompt := st.chat_input('Enter the text of your appeal'):
+    if prompt := st.chat_input('Enter your question'):
         st.session_state.messages.append({'role': 'user', 'content': prompt})
 
     for message in st.session_state.messages:
@@ -28,7 +28,7 @@ def main():
 
                 try:
                     response = requests.post(
-                        'http://fastapi:80/api/v1/get_answer/',
+                        'http://localhost:80/api/v1/get_answer/',
                         json=history_message,
                     )
                     response.raise_for_status()
