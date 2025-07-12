@@ -14,7 +14,6 @@ dependencies = [
     "langchain-huggingface>=0.1.2",
     "langchain-ollama>=0.3.2",
     "more-itertools>=10.7.0",
-    "protobuf==3.20.3",
     "pydantic>=2.11.4",
     "requests>=2.32.3",
     "sqlalchemy>=2.0.40",
