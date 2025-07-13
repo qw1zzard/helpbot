@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from sqlalchemy import select
-from src.database import SessionModel, new_session
+from src.db.database import SessionModel, new_session
 
 
 class SessionRepository:

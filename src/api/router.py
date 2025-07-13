@@ -1,18 +1,7 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from src.model import get_rag_answer
-from src.repository import SessionRepository
-
-
-class HistoryMessage(BaseModel):
-    role: str  # in ('user', 'assistant')
-    content: str
-
-
-class History(BaseModel):
-    session_id: str
-    history: list[HistoryMessage]
-
+from src.api.schemas import History
+from src.core.model import get_rag_answer
+from src.db.repository import SessionRepository
 
 router = APIRouter(
     prefix='/api/v1',

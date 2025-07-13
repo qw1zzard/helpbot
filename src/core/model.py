@@ -14,7 +14,7 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_ollama import ChatOllama
 from more_itertools import chunked
-from src.settings import Settings
+from src.core.settings import Settings
 
 
 def get_chat_prompt(prompt: str) -> ChatPromptTemplate:
@@ -37,7 +37,7 @@ def get_session_history(session_id: str) -> BaseChatMessageHistory:
 
 
 def create_conversational_rag_chain() -> RunnableWithMessageHistory:
-    settings = Settings()
+    settings = Settings()  # type: ignore
 
     llm = ChatOllama(
         model=settings.chat_model_name,
