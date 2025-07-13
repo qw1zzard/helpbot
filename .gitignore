@@ -2,6 +2,7 @@
 *.sqlite3
 *.db
 data/ollama/
+data/model/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

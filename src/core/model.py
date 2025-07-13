@@ -1,6 +1,5 @@
 import os
 
-from core.settings import Settings
 from langchain.chains import (
     create_history_aware_retriever,
     create_retrieval_chain,
@@ -15,6 +14,7 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_ollama import ChatOllama
 from more_itertools import chunked
+from src.core.settings import Settings
 
 
 def get_chat_prompt(prompt: str) -> ChatPromptTemplate:

@@ -1,7 +1,7 @@
-from api.schemas import History
-from core.model import get_rag_answer
-from db.repository import SessionRepository
 from fastapi import APIRouter, HTTPException
+from src.api.schemas import History
+from src.core.model import get_rag_answer
+from src.db.repository import SessionRepository
 
 router = APIRouter(
     prefix='/api/v1',

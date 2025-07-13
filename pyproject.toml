@@ -16,6 +16,7 @@ dependencies = [
     "more-itertools>=10.7.0",
     "pydantic>=2.11.4",
     "requests>=2.32.3",
+    "sentence-transformers>=4.1.0",
     "sqlalchemy>=2.0.40",
     "streamlit>=1.45.0",
     "torch>=2.7.0",
