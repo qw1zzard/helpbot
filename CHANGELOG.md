@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1](https://github.com/qw1zzard/helpbot/compare/v1.0.0...v1.0.1) (2025-07-13)
+
+
+### Bug Fixes
+
+* **deps:** remove pinned protobuf version ([72fa340](https://github.com/qw1zzard/helpbot/commit/72fa340b2ca3b09910009935c72c90b40f5b721c))
+* docker build paths ([820cec2](https://github.com/qw1zzard/helpbot/commit/820cec202af438304eeb94e86d7f73378d7603a2))
+
 ## 1.0.0 (2025-05-01)
 
 
