@@ -1,6 +1,6 @@
 import requests
 import streamlit as st
-from utils import response_generator, startup_page_ui
+from app.utils import response_generator, startup_page_ui
 
 
 def main():
@@ -36,7 +36,7 @@ def main():
 
                     response = st.write_stream(response_generator(answer['answer']))
                     st.session_state.messages.append(
-                        {'role': 'assistant', 'content': response}
+                        {'role': 'assistant', 'content': response}  # type: ignore
                     )
 
                 except requests.exceptions.RequestException as e:

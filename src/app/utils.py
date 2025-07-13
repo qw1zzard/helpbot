@@ -6,7 +6,7 @@ from extra_streamlit_components import CookieManager
 
 
 def startup_page_ui() -> str:
-    st.set_page_config(page_title='Helpbot', page_icon='🤖')
+    st.set_page_config(page_title='helpbot', page_icon='🤖')
     st.title('Customer support')
 
     cookie_manager = CookieManager()
