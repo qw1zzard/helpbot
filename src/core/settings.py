@@ -19,6 +19,12 @@ class Settings(BaseSettings):
 
     csv_name: str = Field()
 
+    postgres_host: str = Field()
+    postgres_port: int = Field()
+    postgres_user: str = Field()
+    postgres_password: str = Field()
+    postgres_db: str = Field()
+
     contextualize_q_system_prompt: str = Field("""
         Given a chat history and the latest user question which might reference
         context in the chat history, formulate a standalone question which can be

@@ -51,6 +51,20 @@ services:
     networks:
       - backend
 
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_DB: helpbot
+      POSTGRES_USER: helpbot
+      POSTGRES_PASSWORD: helpbot
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - backend
+
 networks:
   backend:
     driver: bridge
@@ -60,3 +74,4 @@ volumes:
   model:
   vectorstore:
   qdrant_data:
+  pg_data:
