@@ -1,80 +1,58 @@
 # helpbot 🤖
 
 **helpbot** is a Q&A assistant powered by FastAPI, Streamlit, LangChain, and
-Ollama. It answers user questions by retrieving the most relevant answer from a
-structured knowledge base (CSV file). The chatbot uses a Retrieval-Augmented
-Generation (RAG) architecture with persistent session tracking and a modern
-GPU-enabled containerized stack.
-
----
+Ollama. It retrieves the most relevant answer from a structured knowledge base
+using Retrieval-Augmented Generation (RAG). It supports GPU acceleration,
+persistent vector storage, and session tracking via PostgreSQL.
 
 ## 🚀 Features
 
-- Chat-based user interface (Streamlit)
-- RAG pipeline with LangChain, Ollama, and Chroma
-- GPU-accelerated model support via Docker
-- Session tracking with SQLite
+- Chat-based UI with Streamlit
+- RAG pipeline using LangChain, Ollama, HuggingFace, and Qdrant
+- GPU support via Docker (Ollama & Transformers)
+- Persistent vector store with Qdrant
+- Session tracking with PostgreSQL
 - Fully configurable via `.env`
 - GitHub release automation via `release-please`
-
----
 
 ## 🐳 Quickstart (Docker)
 
 1. **Create `.env`**
 
-Duplicate `.env.example` and fill in the values:
-
 ```bash
 cp .env.example .env
 ````
 
-2. **Launch containers**
+2. **Start services**
 
 ```bash
 docker compose up --build
 ```
 
-- FastAPI backend: [http://localhost:80](http://localhost:80)
+Access:
+
 - Streamlit UI: [http://localhost:8501](http://localhost:8501)
+- FastAPI backend: [http://localhost:80](http://localhost:80)
 - Ollama (model host): [http://localhost:11434](http://localhost:11434)
+- Qdrant (vector store): [http://localhost:6333](http://localhost:6333)
 
----
+## 📚 Load Knowledge Base
 
-## 🔧 Dependency Management
-
-This project uses [`uv`](https://github.com/astral-sh/uv) for dependency resolution:
+To load and convert RuBQ example to CSV format:
 
 ```bash
-# To upgrade dependencies
-uv pip compile --upgrade --extra dev
-
-# To install dependencies locally (optional)
-uv pip install --system --no-cache .
+python data/load_rubq.py
 ```
 
----
+## 🚀 Release Automation
 
-## 🧪 Development Tips
+GitHub Actions uses [`release-please`](https://github.com/googleapis/release-please) to:
 
-- Dev dependencies: `ruff`, `mypy`
-- All RAG logic is defined in `src/model.py`
-- Chroma vectorstore uses persistent directory (`./vectorestore`)
-- Data source: `data.csv` (Q\&A pairs)
-
----
-
-## 🛠 Release Automation
-
-GitHub Actions uses [`release-please`](https://github.com/googleapis/release-please) to automatically:
-
-- Bump version
+- Bump versions
 - Update `CHANGELOG.md`
 - Create GitHub releases
 
 Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) when committing to enable this.
-
----
 
 ## 📄 License
 

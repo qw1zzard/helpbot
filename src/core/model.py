@@ -24,13 +24,13 @@ def get_chat_prompt(prompt: str) -> ChatPromptTemplate:
     )
 
 
-global_store = {}
+_global_store: dict[str, ChatMessageHistory] = {}
 
 
 def get_session_history(session_id: str) -> BaseChatMessageHistory:
-    if session_id not in global_store:
-        global_store[session_id] = ChatMessageHistory()
-    return global_store[session_id]
+    if session_id not in _global_store:
+        _global_store[session_id] = ChatMessageHistory()
+    return _global_store[session_id]
 
 
 def create_conversational_rag_chain() -> RunnableWithMessageHistory:
@@ -41,6 +41,7 @@ def create_conversational_rag_chain() -> RunnableWithMessageHistory:
         temperature=settings.temperature,
         base_url='http://ollama:11434/',
     )
+
     embeddings = HuggingFaceEmbeddings(
         model_name=settings.embed_model_name,
         model_kwargs={'device': settings.device},
@@ -49,9 +50,8 @@ def create_conversational_rag_chain() -> RunnableWithMessageHistory:
     qdrant_client = QdrantClient(url=settings.qdrant_url)
     collection_name = settings.collection_name
 
-    if collection_name not in [
-        c.name for c in qdrant_client.get_collections().collections
-    ]:
+    existing_collections = [c.name for c in qdrant_client.get_collections().collections]
+    if collection_name not in existing_collections:
         qdrant_client.recreate_collection(
             collection_name=collection_name,
             vectors_config=VectorParams(
@@ -73,9 +73,8 @@ def create_conversational_rag_chain() -> RunnableWithMessageHistory:
             content_columns=['question', 'answer'],
             encoding='utf-8',
         )
-        all_documents = list(chunked(loader.load(), 3000))
-        for chunk in all_documents:
-            vectorstore.add_documents(chunk)
+        for chunk in chunked(loader.load(), 3000):
+            vectorstore.add_documents(documents=chunk)
 
     retriever = vectorstore.as_retriever(
         search_type=settings.search_type,
