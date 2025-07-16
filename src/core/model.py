@@ -1,19 +1,16 @@
-import os
-
-from langchain.chains import (
-    create_history_aware_retriever,
-    create_retrieval_chain,
-)
+from langchain.chains import create_history_aware_retriever, create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_chroma import Chroma
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_community.document_loaders import CSVLoader
+from langchain_community.vectorstores import Qdrant
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_ollama import ChatOllama
 from more_itertools import chunked
+from qdrant_client import QdrantClient
+from qdrant_client.http.models import Distance, VectorParams
 from src.core.settings import Settings
 
 
@@ -49,36 +46,41 @@ def create_conversational_rag_chain() -> RunnableWithMessageHistory:
         model_kwargs={'device': settings.device},
     )
 
-    if not (
-        os.path.exists(settings.persist_directory)
-        and os.listdir(settings.persist_directory)
-    ):
-        vectorstore = Chroma(
-            collection_name=settings.collection_name,
-            embedding_function=embeddings,
-            persist_directory=settings.persist_directory,
+    qdrant_client = QdrantClient(url=settings.qdrant_url)
+    collection_name = settings.collection_name
+
+    if collection_name not in [
+        c.name for c in qdrant_client.get_collections().collections
+    ]:
+        qdrant_client.recreate_collection(
+            collection_name=collection_name,
+            vectors_config=VectorParams(
+                size=len(embeddings.embed_query('test')),
+                distance=Distance.COSINE,
+            ),
         )
-        loader_train = CSVLoader(
+
+    vectorstore = Qdrant(
+        client=qdrant_client,
+        collection_name=collection_name,
+        embeddings=embeddings,
+    )
+
+    if qdrant_client.count(collection_name=collection_name).count == 0:
+        loader = CSVLoader(
             file_path=settings.csv_name,
             metadata_columns=['id'],
             content_columns=['question', 'answer'],
             encoding='utf-8',
         )
-        all_documents = list(chunked(loader_train.load(), 3000))
-
-        for documents in all_documents:
-            vectorstore.add_documents(documents=documents)
-    else:
-        vectorstore = Chroma(
-            collection_name=settings.collection_name,
-            embedding_function=embeddings,
-            persist_directory=settings.persist_directory,
-        )
+        all_documents = list(chunked(loader.load(), 3000))
+        for chunk in all_documents:
+            vectorstore.add_documents(chunk)
 
     retriever = vectorstore.as_retriever(
         search_type=settings.search_type,
         search_kwargs={
-            'num_answers': settings.num_answers,
+            'k': settings.num_answers,
             'lambda_mult': settings.lambda_mult,
         },
     )

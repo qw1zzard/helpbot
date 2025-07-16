@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     device: str = Field()
     temperature: float = Field()
 
-    persist_directory: str = Field()
+    qdrant_url: str = Field()
     collection_name: str = Field()
     search_type: str = Field()
     num_answers: int = Field()
