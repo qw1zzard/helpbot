@@ -2,6 +2,7 @@ from datetime import datetime
 
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from src.core.settings import Settings
 
 
 class Model(DeclarativeBase):
@@ -16,7 +17,13 @@ class SessionModel(Model):
     question_count: Mapped[int] = mapped_column(default=1)
 
 
-engine = create_async_engine('sqlite+aiosqlite:///sessions.db')
+settings = Settings()  # type: ignore
+POSTGRES_URL = (
+    f'postgresql+asyncpg://{settings.postgres_user}:{settings.postgres_password}'
+    f'@{settings.postgres_host}:{settings.postgres_port}/{settings.postgres_db}'
+)
+
+engine = create_async_engine(POSTGRES_URL)
 new_session = async_sessionmaker(engine, expire_on_commit=False)
 
 

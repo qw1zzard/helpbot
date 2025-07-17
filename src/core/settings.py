@@ -11,13 +11,19 @@ class Settings(BaseSettings):
     device: str = Field()
     temperature: float = Field()
 
-    persist_directory: str = Field()
+    qdrant_url: str = Field()
     collection_name: str = Field()
     search_type: str = Field()
     num_answers: int = Field()
     lambda_mult: float = Field()
 
     csv_name: str = Field()
+
+    postgres_host: str = Field()
+    postgres_port: int = Field()
+    postgres_user: str = Field()
+    postgres_password: str = Field()
+    postgres_db: str = Field()
 
     contextualize_q_system_prompt: str = Field("""
         Given a chat history and the latest user question which might reference

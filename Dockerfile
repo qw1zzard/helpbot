@@ -12,6 +12,6 @@ COPY start.sh .
 RUN dos2unix start.sh && chmod +x start.sh
 
 COPY src/ src/
-COPY data.csv .
+COPY data/data.csv .
 
 CMD ["./start.sh"]
