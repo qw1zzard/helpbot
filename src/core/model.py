@@ -102,10 +102,15 @@ def create_conversational_rag_chain() -> RunnableWithMessageHistory:
     )
 
 
-conversational_rag_chain = create_conversational_rag_chain()
+conversational_rag_chain: RunnableWithMessageHistory | None = None
 
 
 def get_rag_answer(session_id: str, user_input: str) -> str:
+    global conversational_rag_chain
+
+    if conversational_rag_chain is None:
+        conversational_rag_chain = create_conversational_rag_chain()
+
     response = conversational_rag_chain.invoke(
         {'input': user_input},
         config={'configurable': {'session_id': session_id}},
