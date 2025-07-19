@@ -1,7 +1,7 @@
 [project]
 name = "helpbot"
 version = "1"
-description = "QA chatbot using FastAPI and Streamlit"
+description = "Q&A assistant powered by FastAPI, Streamlit, LangChain, and Ollama"
 
 dependencies = [
     "asyncpg>=0.29.0",

@@ -1,6 +1,6 @@
 import requests
 import streamlit as st
-from utils import response_generator, startup_page_ui
+from src.app.utils import response_generator, startup_page_ui
 
 
 def main():

@@ -14,15 +14,7 @@ def test_session_history_persistence():
     assert history1 is history2
 
 
-@patch('src.core.model.ChatOllama')
-@patch('src.core.model.HuggingFaceEmbeddings.embed_query', return_value=[0.0] * 384)
-@patch(
-    'src.core.model.QdrantClient.get_collections',
-    return_value=type('C', (), {'collections': []})(),
-)
-@patch('src.core.model.QdrantClient.recreate_collection', return_value=None)
-@patch('src.core.model.QdrantClient.count', return_value=type('C', (), {'count': 1})())
-def test_create_rag_chain_returns_chain(*_):
+def test_create_rag_chain_returns_chain(mock_qdrant, mock_embed, mock_ollama):
     chain = create_conversational_rag_chain()
     assert hasattr(chain, 'invoke')
 
@@ -33,10 +25,3 @@ def test_get_rag_answer_output_type(mock_chain):
     response = get_rag_answer('session-id', "What's the answer?")
     assert isinstance(response, str)
     assert response == '42'
-
-
-@patch('src.core.model.conversational_rag_chain')
-def test_get_rag_answer_mocks_chain(mock_chain):
-    mock_chain.invoke.return_value = {'answer': 'ответ'}
-    result = get_rag_answer('test-session', 'что такое VPN')
-    assert result == 'ответ'
