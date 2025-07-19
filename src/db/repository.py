@@ -20,11 +20,6 @@ class SessionRepository:
         return result.scalar_one_or_none()
 
     @staticmethod
-    def _is_new_session(last_timestamp: datetime) -> bool:
-        time_diff = datetime.now() - last_timestamp
-        return time_diff > timedelta(minutes=30)
-
-    @staticmethod
     async def _add_session(session_id: str, session: AsyncSession) -> None:
         new_session = SessionModel(session_id=session_id)
         session.add(new_session)
@@ -33,6 +28,6 @@ class SessionRepository:
 
     @classmethod
     async def update_session(cls, session_id: str, session: AsyncSession) -> None:
-        last_session = await cls._get_last_session(session_id, session)
-        if not last_session or cls._is_new_session(last_session.timestamp):
+        last = await cls._get_last_session(session_id, session)
+        if not last or datetime.now() - last.timestamp > timedelta(minutes=30):
             await cls._add_session(session_id, session)

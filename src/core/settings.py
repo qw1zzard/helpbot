@@ -1,7 +1,18 @@
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def load_prompt(path: str) -> str:
+    """Load a prompt from a .md or .txt file."""
+    prompt_path = Path(path)
+
+    if not prompt_path.is_file():
+        raise FileNotFoundError(f'Prompt file not found: {prompt_path.resolve()}')
+
+    return prompt_path.read_text(encoding='utf-8').strip()
 
 
 class Settings(BaseSettings):
@@ -27,27 +38,8 @@ class Settings(BaseSettings):
     postgres_password: str = Field()
     postgres_db: str = Field()
 
-    contextualize_q_system_prompt: str = Field("""
-        Given a chat history and the latest user question which might reference
-        context in the chat history, formulate a standalone question which can be
-        understood without the chat history. Do NOT answer the question, just
-        reformulate it if needed and otherwise return it as is.
-    """)
-
-    system_prompt: str = Field(
-        """
-        You are an internal technical support assistant for employees of a large company. 
-
-        1. Use the entire conversation history with the user to understand the context of the inquiry.
-        2. Incorporate the pieces of information retrieved from the knowledge base,
-            which consists of pairs of questions (user inquiries) and fixed answers (responses).
-        3. Based on the current conversation, choose the most relevant question from
-            the retrieved pairs, and respond with the corresponding fixed answer from the knowledge base.
-        4. You must provide responses exactly as they appear in the knowledge base,
-            without any modifications. All responses must be in Russian.
-        """
-        '\n\n{context}'
-    )
+    context_prompt: str = load_prompt('prompts/context.md')
+    system_prompt: str = load_prompt('prompts/system.md')
 
 
 @lru_cache

@@ -12,33 +12,19 @@ def client():
 
 
 @pytest.fixture
-def patch_qdrant_get_collections():
-    with patch(
-        'src.core.model.QdrantClient.get_collections',
-        return_value=type('C', (), {'collections': []})(),
+def mock_qdrant():
+    with (
+        patch(
+            'src.core.model.QdrantClient.get_collections',
+            return_value=type('C', (), {'collections': []})(),
+        ),
+        patch('src.core.model.QdrantClient.recreate_collection', return_value=None),
+        patch(
+            'src.core.model.QdrantClient.count',
+            return_value=type('C', (), {'count': 1})(),
+        ),
     ):
         yield
-
-
-@pytest.fixture
-def patch_qdrant_recreate():
-    with patch('src.core.model.QdrantClient.recreate_collection', return_value=None):
-        yield
-
-
-@pytest.fixture
-def patch_qdrant_count():
-    with patch(
-        'src.core.model.QdrantClient.count', return_value=type('C', (), {'count': 1})()
-    ):
-        yield
-
-
-@pytest.fixture
-def mock_qdrant(
-    patch_qdrant_get_collections, patch_qdrant_recreate, patch_qdrant_count
-):
-    pass
 
 
 @pytest.fixture

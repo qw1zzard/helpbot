@@ -80,11 +80,11 @@ def create_conversational_rag_chain() -> RunnableWithMessageHistory:
         },
     )
 
-    contextualize_q_prompt = get_chat_prompt(settings.contextualize_q_system_prompt)
+    context_prompt = get_chat_prompt(settings.context_prompt)
     qa_prompt = get_chat_prompt(settings.system_prompt)
 
     history_aware_retriever = create_history_aware_retriever(
-        llm, retriever, contextualize_q_prompt
+        llm, retriever, context_prompt
     )
     question_answer_chain = create_stuff_documents_chain(llm, qa_prompt)
     rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)

@@ -15,6 +15,10 @@ def startup_page_ui() -> str:
     return st.session_state.session_id
 
 
+def add_message(role: str, content: str):
+    st.session_state.messages.append({'role': role, 'content': content})
+
+
 def response_generator(response: str):
     for word in response.split():
         yield word + ' '
@@ -30,7 +34,7 @@ def main():
         ]
 
     if prompt := st.chat_input('Enter your question'):
-        st.session_state.messages.append({'role': 'user', 'content': prompt})
+        add_message('user', prompt)
 
     for message in st.session_state.messages:
         with st.chat_message(message['role']):
@@ -50,12 +54,10 @@ def main():
                         json=history_message,
                     )
                     response.raise_for_status()
-                    answer = response.json()
+                    answer = response.json()['answer']
 
-                    response = st.write_stream(response_generator(answer['answer']))
-                    st.session_state.messages.append(
-                        {'role': 'assistant', 'content': response}  # type: ignore
-                    )
+                    response = st.write_stream(response_generator(answer))
+                    add_message('assistant', answer)
 
                 except requests.exceptions.RequestException as e:
                     st.error(f'An error occurred: {e}')
