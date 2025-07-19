@@ -1,8 +1,6 @@
 from langchain.chains import create_history_aware_retriever, create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_community.document_loaders import CSVLoader
-from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -11,6 +9,7 @@ from langchain_qdrant import Qdrant
 from more_itertools import chunked
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import Distance, VectorParams
+from src.core.history import ChatHistoryStore
 from src.core.settings import Settings
 
 
@@ -22,15 +21,6 @@ def get_chat_prompt(prompt: str) -> ChatPromptTemplate:
             ('human', '{input}'),
         ]
     )
-
-
-_global_store: dict[str, ChatMessageHistory] = {}
-
-
-def get_session_history(session_id: str) -> BaseChatMessageHistory:
-    if session_id not in _global_store:
-        _global_store[session_id] = ChatMessageHistory()
-    return _global_store[session_id]
 
 
 def create_conversational_rag_chain() -> RunnableWithMessageHistory:
@@ -93,9 +83,11 @@ def create_conversational_rag_chain() -> RunnableWithMessageHistory:
     question_answer_chain = create_stuff_documents_chain(llm, qa_prompt)
     rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
 
+    history_store = ChatHistoryStore()
+
     return RunnableWithMessageHistory(
         rag_chain,
-        get_session_history,
+        lambda session_id: history_store.get_history(session_id),
         input_messages_key='input',
         history_messages_key='history',
         output_messages_key='answer',

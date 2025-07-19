@@ -1,17 +1,15 @@
 from unittest.mock import patch
 
-from src.core.model import (
-    create_conversational_rag_chain,
-    get_rag_answer,
-    get_session_history,
-)
+from src.core.history import ChatHistoryStore
+from src.core.model import create_conversational_rag_chain, get_rag_answer
 
 
 def test_session_history_persistence():
     session_id = 'test-session'
-    history1 = get_session_history(session_id)
-    history2 = get_session_history(session_id)
-    assert history1 is history2
+    history_store = ChatHistoryStore()
+    history_1 = history_store.get_history(session_id)
+    history_2 = history_store.get_history(session_id)
+    assert history_1 is history_2
 
 
 def test_create_rag_chain_returns_chain(mock_qdrant, mock_embed, mock_ollama):
