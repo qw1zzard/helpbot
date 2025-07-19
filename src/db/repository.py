@@ -42,7 +42,7 @@ class SessionRepository:
 
         question_count = 1
         if last_session and not cls._is_new_session(last_session.timestamp):
-            question_count = last_session.question_count % 2 + 1
+            question_count = last_session.question_count + 1
 
         await cls._add_session(session_id, question_count, session)
         return question_count

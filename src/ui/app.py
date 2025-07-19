@@ -1,6 +1,24 @@
+import time
+import uuid
+
 import requests
 import streamlit as st
-from src.app.utils import response_generator, startup_page_ui
+
+
+def startup_page_ui() -> str:
+    st.set_page_config(page_title='helpbot', page_icon='🤖')
+    st.title('Customer support')
+
+    if 'session_id' not in st.session_state:
+        st.session_state.session_id = str(uuid.uuid4())
+
+    return st.session_state.session_id
+
+
+def response_generator(response: str):
+    for word in response.split():
+        yield word + ' '
+        time.sleep(0.05)
 
 
 def main():

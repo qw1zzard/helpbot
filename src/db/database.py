@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from src.core.settings import Settings
+from src.core.settings import get_settings
 
 
 class Model(DeclarativeBase):
@@ -17,7 +17,7 @@ class SessionModel(Model):
     question_count: Mapped[int] = mapped_column(default=1)
 
 
-settings = Settings()  # type: ignore
+settings = get_settings()
 POSTGRES_URL = (
     f'postgresql+asyncpg://{settings.postgres_user}:{settings.postgres_password}'
     f'@{settings.postgres_host}:{settings.postgres_port}/{settings.postgres_db}'

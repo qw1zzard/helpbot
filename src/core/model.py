@@ -12,7 +12,7 @@ from more_itertools import chunked
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import Distance, VectorParams
 from src.core.history import ChatHistoryStore
-from src.core.settings import Settings
+from src.core.settings import Settings, get_settings
 
 
 def get_vectorstore(settings: Settings) -> Qdrant:
@@ -20,13 +20,11 @@ def get_vectorstore(settings: Settings) -> Qdrant:
         model_name=settings.embed_model_name,
         model_kwargs={'device': settings.device},
     )
-
-    qdrant_client = QdrantClient(url=settings.qdrant_url)
+    client = QdrantClient(url=settings.qdrant_url)
     collection_name = settings.collection_name
 
-    existing_collections = [c.name for c in qdrant_client.get_collections().collections]
-    if collection_name not in existing_collections:
-        qdrant_client.recreate_collection(
+    if collection_name not in [c.name for c in client.get_collections().collections]:
+        client.recreate_collection(
             collection_name=collection_name,
             vectors_config=VectorParams(
                 size=len(embeddings.embed_query('test')),
@@ -34,11 +32,23 @@ def get_vectorstore(settings: Settings) -> Qdrant:
             ),
         )
 
-    return Qdrant(
-        client=qdrant_client,
+    vectorstore = Qdrant(
+        client=client,
         collection_name=collection_name,
         embeddings=embeddings,
     )
+
+    if client.count(collection_name=collection_name).count == 0:
+        loader = CSVLoader(
+            file_path=settings.csv_name,
+            metadata_columns=['id'],
+            content_columns=['question', 'answer'],
+            encoding='utf-8',
+        )
+        for chunk in chunked(loader.load(), 3000):
+            vectorstore.add_documents(documents=chunk)
+
+    return vectorstore
 
 
 def get_chat_prompt(prompt: str) -> ChatPromptTemplate:
@@ -52,7 +62,7 @@ def get_chat_prompt(prompt: str) -> ChatPromptTemplate:
 
 
 def create_conversational_rag_chain() -> RunnableWithMessageHistory:
-    settings = Settings()  # type: ignore
+    settings = get_settings()
 
     llm = ChatOllama(
         model=settings.chat_model_name,
@@ -60,20 +70,7 @@ def create_conversational_rag_chain() -> RunnableWithMessageHistory:
         base_url='http://ollama:11434/',
     )
 
-    qdrant_client = QdrantClient(url=settings.qdrant_url)
-    collection_name = settings.collection_name
-
     vectorstore = get_vectorstore(settings)
-
-    if qdrant_client.count(collection_name=collection_name).count == 0:
-        loader = CSVLoader(
-            file_path=settings.csv_name,
-            metadata_columns=['id'],
-            content_columns=['question', 'answer'],
-            encoding='utf-8',
-        )
-        for chunk in chunked(loader.load(), 3000):
-            vectorstore.add_documents(documents=chunk)
 
     retriever = vectorstore.as_retriever(
         search_type=settings.search_type,

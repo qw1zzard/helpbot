@@ -24,6 +24,4 @@ async def get_answer(
     if not user_input:
         raise HTTPException(status_code=400, detail='User message not found')
 
-    answer = get_rag_answer(query.session_id, user_input)
-
-    return {'answer': answer}
+    return {'answer': get_rag_answer(query.session_id, user_input)}

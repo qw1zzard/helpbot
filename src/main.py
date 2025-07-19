@@ -20,7 +20,7 @@ app.add_exception_handler(RequestValidationError, validation_exception_handler) 
 
 @app.get('/')
 async def home():
-    return 200
+    return {'status': 'ok'}
 
 
 app.include_router(router)
