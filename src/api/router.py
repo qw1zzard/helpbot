@@ -15,7 +15,7 @@ router = APIRouter(
 async def get_answer(
     query: History, session: AsyncSession = Depends(get_session)
 ) -> dict[str, str]:
-    _ = await SessionRepository.update_question_count(query.session_id, session)
+    await SessionRepository.update_session(query.session_id, session)
 
     user_input = next(
         (msg.content for msg in query.history if msg.role == 'user'), None

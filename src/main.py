@@ -14,7 +14,12 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(
+    title='helpbot',
+    description='Q&A assistant',
+    version='1.0.0',
+    lifespan=lifespan,
+)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)  # type: ignore
 
 

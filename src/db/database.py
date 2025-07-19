@@ -14,7 +14,6 @@ class SessionModel(Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     session_id: Mapped[str]
     timestamp: Mapped[datetime] = mapped_column(default=datetime.now)
-    question_count: Mapped[int] = mapped_column(default=1)
 
 
 settings = get_settings()

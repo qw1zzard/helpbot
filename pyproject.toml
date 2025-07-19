@@ -1,6 +1,6 @@
 [project]
 name = "helpbot"
-version = "1"
+version = "1.0.0"
 description = "Q&A assistant powered by FastAPI, Streamlit, LangChain, and Ollama"
 
 dependencies = [
