@@ -1,7 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 from src.api.schemas import History
 from src.core.model import get_rag_answer
 from src.db.repository import SessionRepository
+from src.db.session import get_session
 
 router = APIRouter(
     prefix='/api/v1',
@@ -10,21 +12,18 @@ router = APIRouter(
 
 
 @router.post('/get_answer/')
-async def get_answer(query: History) -> dict[str, str]:
-    session_id = query.session_id
-    _ = await SessionRepository.update_question_count(session_id)
+async def get_answer(
+    query: History, session: AsyncSession = Depends(get_session)
+) -> dict[str, str]:
+    _ = await SessionRepository.update_question_count(query.session_id, session)
 
-    try:
-        user_input = next(
-            (msg.content for msg in query.history if msg.role == 'user'), None
-        )
+    user_input = next(
+        (msg.content for msg in query.history if msg.role == 'user'), None
+    )
 
-        if not user_input:
-            raise HTTPException(status_code=400, detail='User message not found')
+    if not user_input:
+        raise HTTPException(status_code=400, detail='User message not found')
 
-        answer = get_rag_answer(query.session_id, user_input)
+    answer = get_rag_answer(query.session_id, user_input)
 
-        return {'answer': answer}
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    return {'answer': answer}

@@ -2,6 +2,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy.ext.asyncio import AsyncSession
 from src.main import app
 
 
@@ -66,3 +67,8 @@ def mock_repo_methods():
         ) as mock_add,
     ):
         yield mock_get, mock_add
+
+
+@pytest.fixture
+def mock_session():
+    return AsyncMock(spec=AsyncSession)

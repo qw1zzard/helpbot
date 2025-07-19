@@ -2,6 +2,8 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
+from src.api.exceptions import validation_exception_handler
 from src.api.router import router
 from src.db.database import create_tables
 
@@ -13,6 +15,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)  # type: ignore
 
 
 @app.get('/')
