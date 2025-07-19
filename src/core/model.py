@@ -2,12 +2,12 @@ from langchain.chains import create_history_aware_retriever, create_retrieval_ch
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_community.document_loaders import CSVLoader
-from langchain_community.vectorstores import Qdrant
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_ollama import ChatOllama
+from langchain_qdrant import Qdrant
 from more_itertools import chunked
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import Distance, VectorParams
@@ -102,10 +102,15 @@ def create_conversational_rag_chain() -> RunnableWithMessageHistory:
     )
 
 
-conversational_rag_chain = create_conversational_rag_chain()
+conversational_rag_chain: RunnableWithMessageHistory | None = None
 
 
 def get_rag_answer(session_id: str, user_input: str) -> str:
+    global conversational_rag_chain
+
+    if conversational_rag_chain is None:
+        conversational_rag_chain = create_conversational_rag_chain()
+
     response = conversational_rag_chain.invoke(
         {'input': user_input},
         config={'configurable': {'session_id': session_id}},
