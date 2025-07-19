@@ -19,7 +19,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["ruff", "pytest"]
+dev = ["ruff", "pytest", "pytest-asyncio"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -33,3 +33,10 @@ def test_get_rag_answer_output_type(mock_chain):
     response = get_rag_answer('session-id', "What's the answer?")
     assert isinstance(response, str)
     assert response == '42'
+
+
+@patch('src.core.model.conversational_rag_chain')
+def test_get_rag_answer_mocks_chain(mock_chain):
+    mock_chain.invoke.return_value = {'answer': 'ответ'}
+    result = get_rag_answer('test-session', 'что такое VPN')
+    assert result == 'ответ'
