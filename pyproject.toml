@@ -5,7 +5,6 @@ description = "Q&A assistant powered by FastAPI, Streamlit, LangChain, and Ollam
 
 dependencies = [
     "asyncpg>=0.29.0",
-    "extra-streamlit-components>=0.1.80",
     "fastapi>=0.115.12",
     "langchain>=0.3.24",
     "langchain-community>=0.3.23",

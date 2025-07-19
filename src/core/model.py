@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from langchain.chains import create_history_aware_retriever, create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_community.document_loaders import CSVLoader
@@ -11,6 +13,32 @@ from qdrant_client import QdrantClient
 from qdrant_client.http.models import Distance, VectorParams
 from src.core.history import ChatHistoryStore
 from src.core.settings import Settings
+
+
+def get_vectorstore(settings: Settings) -> Qdrant:
+    embeddings = HuggingFaceEmbeddings(
+        model_name=settings.embed_model_name,
+        model_kwargs={'device': settings.device},
+    )
+
+    qdrant_client = QdrantClient(url=settings.qdrant_url)
+    collection_name = settings.collection_name
+
+    existing_collections = [c.name for c in qdrant_client.get_collections().collections]
+    if collection_name not in existing_collections:
+        qdrant_client.recreate_collection(
+            collection_name=collection_name,
+            vectors_config=VectorParams(
+                size=len(embeddings.embed_query('test')),
+                distance=Distance.COSINE,
+            ),
+        )
+
+    return Qdrant(
+        client=qdrant_client,
+        collection_name=collection_name,
+        embeddings=embeddings,
+    )
 
 
 def get_chat_prompt(prompt: str) -> ChatPromptTemplate:
@@ -32,29 +60,10 @@ def create_conversational_rag_chain() -> RunnableWithMessageHistory:
         base_url='http://ollama:11434/',
     )
 
-    embeddings = HuggingFaceEmbeddings(
-        model_name=settings.embed_model_name,
-        model_kwargs={'device': settings.device},
-    )
-
     qdrant_client = QdrantClient(url=settings.qdrant_url)
     collection_name = settings.collection_name
 
-    existing_collections = [c.name for c in qdrant_client.get_collections().collections]
-    if collection_name not in existing_collections:
-        qdrant_client.recreate_collection(
-            collection_name=collection_name,
-            vectors_config=VectorParams(
-                size=len(embeddings.embed_query('test')),
-                distance=Distance.COSINE,
-            ),
-        )
-
-    vectorstore = Qdrant(
-        client=qdrant_client,
-        collection_name=collection_name,
-        embeddings=embeddings,
-    )
+    vectorstore = get_vectorstore(settings)
 
     if qdrant_client.count(collection_name=collection_name).count == 0:
         loader = CSVLoader(
@@ -94,16 +103,13 @@ def create_conversational_rag_chain() -> RunnableWithMessageHistory:
     )
 
 
-conversational_rag_chain: RunnableWithMessageHistory | None = None
+@lru_cache
+def get_chain() -> RunnableWithMessageHistory:
+    return create_conversational_rag_chain()
 
 
 def get_rag_answer(session_id: str, user_input: str) -> str:
-    global conversational_rag_chain
-
-    if conversational_rag_chain is None:
-        conversational_rag_chain = create_conversational_rag_chain()
-
-    response = conversational_rag_chain.invoke(
+    response = get_chain().invoke(
         {'input': user_input},
         config={'configurable': {'session_id': session_id}},
     )

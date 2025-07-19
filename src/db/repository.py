@@ -40,10 +40,9 @@ class SessionRepository:
     async def update_question_count(cls, session_id: str, session: AsyncSession) -> int:
         last_session = await cls._get_last_session(session_id, session)
 
-        if not last_session or cls._is_new_session(last_session.timestamp):
-            await cls._add_session(session_id, 1, session)
-            return 1
+        question_count = 1
+        if last_session and not cls._is_new_session(last_session.timestamp):
+            question_count = last_session.question_count % 2 + 1
 
-        new_question_count = last_session.question_count % 2 + 1
-        await cls._add_session(session_id, new_question_count, session)
-        return new_question_count
+        await cls._add_session(session_id, question_count, session)
+        return question_count
