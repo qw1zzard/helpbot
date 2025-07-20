@@ -1,6 +1,1 @@
 __pycache__/
-.env.example
-.vscode/
-data/*
-!data/data.csv
-tests/

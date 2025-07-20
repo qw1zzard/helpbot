@@ -4,6 +4,7 @@ version = "1.0.0"
 description = "Q&A assistant powered by FastAPI, Streamlit, LangChain, and Ollama"
 
 dependencies = [
+    "aiogram>=3.21.0",
     "asyncpg>=0.29.0",
     "fastapi>=0.115.12",
     "langchain>=0.3.24",

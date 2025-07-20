@@ -90,13 +90,26 @@ services:
       timeout: 5s
       retries: 5
 
+  telegram:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: telegram
+    environment:
+      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
+      - API_URL=http://helpbot/api/v1/get_answer/
+    command: ["python", "src/telegram/bot.py"]
+    depends_on:
+      helpbot:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - backend
+
 networks:
   backend:
     driver: bridge
 
 volumes:
-  ollama:
-  model:
-  vectorstore:
   qdrant_data:
   pg_data:

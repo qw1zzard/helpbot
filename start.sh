@@ -7,3 +7,4 @@ until curl -s http://localhost:80/ > /dev/null; do
 done
 
 streamlit run src/ui/app.py --server.port 8501
+python src/telegram/bot.py
