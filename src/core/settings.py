@@ -38,6 +38,8 @@ class Settings(BaseSettings):
     postgres_password: str = Field()
     postgres_db: str = Field()
 
+    telegram_token: str = Field()
+
     context_prompt: str = load_prompt('prompts/context.md')
     system_prompt: str = load_prompt('prompts/system.md')
 

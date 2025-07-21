@@ -1,13 +1,10 @@
-from langchain_community.chat_message_histories import ChatMessageHistory
-from langchain_core.chat_history import BaseChatMessageHistory
-
-
 class ChatHistoryStore:
-    _store: dict[str, ChatMessageHistory] = {}
+    _store: dict[str, list[dict[str, str]]] = {}
 
     @classmethod
-    def get_history(cls, session_id: str) -> BaseChatMessageHistory:
-        if session_id not in cls._store:
-            cls._store[session_id] = ChatMessageHistory()
+    def get_history(cls, session_id: str) -> list[dict[str, str]]:
+        return cls._store.setdefault(session_id, [])
 
-        return cls._store[session_id]
+    @classmethod
+    def add_message(cls, session_id: str, role: str, content: str):
+        cls.get_history(session_id).append({'role': role, 'content': content})

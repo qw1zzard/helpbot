@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock, patch
 
 from src.core.history import ChatHistoryStore
-from src.core.model import create_conversational_rag_chain, get_rag_answer
+from src.core.model import get_rag_answer
 
 
 def test_session_history_persistence():
@@ -12,16 +12,23 @@ def test_session_history_persistence():
     assert history_1 is history_2
 
 
-def test_create_rag_chain(mock_qdrant, mock_embed, mock_ollama):
-    chain = create_conversational_rag_chain()
-    assert hasattr(chain, 'invoke')
+@patch('src.core.model.embedding_model')
+@patch('src.core.model.qdrant_client')
+@patch('src.core.model.requests.post')
+def test_get_rag_answer_output(mock_post, mock_qdrant, mock_embed):
+    mock_embed.encode.return_value = [0.1] * 384
 
+    mock_qdrant.search.return_value = [
+        MagicMock(payload={'answer': 'Answer 1'}),
+        MagicMock(payload={'answer': 'Answer 2'}),
+    ]
 
-@patch('src.core.model.get_chain')
-def test_get_rag_answer_output(mock_get_chain):
-    mock_chain = MagicMock()
-    mock_chain.invoke.return_value = {'answer': '42'}
-    mock_get_chain.return_value = mock_chain
+    mock_post.return_value.status_code = 200
+    mock_post.return_value.json.return_value = {'message': {'content': '42'}}
 
-    response = get_rag_answer('session-id', "What's the answer?")
+    response = get_rag_answer('test-session', "What's the answer?")
     assert response == '42'
+
+    history = ChatHistoryStore().get_history('test-session')
+    assert history[-1]['role'] == 'assistant'
+    assert history[-1]['content'] == '42'
