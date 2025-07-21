@@ -18,27 +18,27 @@ def load_prompt(path: str) -> str:
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
 
-    chat_model_name: str = Field()
-    embed_model_name: str = Field()
+    chat_model_name: str = Field(default='gemma3:1b')
+    embed_model_name: str = Field(default='ai-forever/ru-en-RoSBERTa')
 
-    device: str = Field()
-    temperature: float = Field()
+    device: str = Field(default='cpu')
+    temperature: float = Field(default=0.5)
 
-    qdrant_url: str = Field()
-    collection_name: str = Field()
-    search_type: str = Field()
-    num_answers: int = Field()
-    lambda_mult: float = Field()
+    qdrant_url: str = Field(default='http://qdrant:6333')
+    collection_name: str = Field(default='helpbot')
+    search_type: str = Field(default='mrr')
+    num_answers: int = Field(default=5)
+    lambda_mult: float = Field(default=0.25)
 
-    csv_name: str = Field()
+    csv_name: str = Field(default='data.csv')
 
-    postgres_host: str = Field()
-    postgres_port: int = Field()
-    postgres_user: str = Field()
-    postgres_password: str = Field()
-    postgres_db: str = Field()
+    postgres_host: str = Field(default='helpbot')
+    postgres_port: int = Field(default=5432)
+    postgres_user: str = Field(default='helpbot')
+    postgres_password: str = Field(default='helpbot')
+    postgres_db: str = Field(default='helpbot')
 
-    telegram_token: str = Field()
+    telegram_token: str = Field(default='dummy-token')
 
     context_prompt: str = load_prompt('prompts/context.md')
     system_prompt: str = load_prompt('prompts/system.md')
