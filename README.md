@@ -1,23 +1,22 @@
 # helpbot 🤖
 
-**helpbot** is a Q&A assistant powered by FastAPI, Streamlit, LangChain, and
-Ollama. It retrieves the most relevant answer from a structured knowledge base
-using Retrieval-Augmented Generation (RAG). It supports GPU acceleration,
-persistent vector storage, and session tracking via PostgreSQL.
+**helpbot** is a Q&A assistant powered by FastAPI, Streamlit, Ollama and Qdrant.
+It uses Retrieval-Augmented Generation (RAG) to find the most relevant answers
+from a structured knowledge base.
 
 ## 🚀 Features
 
 - Chat-based UI with Streamlit
-- RAG pipeline using LangChain, Ollama, HuggingFace, and Qdrant
+- FastAPI backend with structured API
+- RAG pipeline using Ollama, HuggingFace, and Qdrant
 - GPU support via Docker (Ollama & Transformers)
-- Persistent vector store with Qdrant
 - Session tracking with PostgreSQL
 - Fully configurable via `.env`
 - GitHub release automation via `release-please`
 
 ## 🐳 Quickstart (Docker)
 
-1. **Create `.env`**
+1. **Create `.env` file**
 
 ```bash
 cp .env.example .env
@@ -33,8 +32,8 @@ Access:
 
 - Streamlit UI: [http://localhost:8501](http://localhost:8501)
 - FastAPI backend: [http://localhost:80](http://localhost:80)
-- Ollama (model host): [http://localhost:11434](http://localhost:11434)
-- Qdrant (vector store): [http://localhost:6333](http://localhost:6333)
+- Ollama model host: [http://localhost:11434](http://localhost:11434)
+- Qdrant vector store: [http://localhost:6333](http://localhost:6333)
 
 ## 📚 Load Knowledge Base
 
@@ -52,7 +51,7 @@ GitHub Actions uses [`release-please`](https://github.com/googleapis/release-ple
 - Update `CHANGELOG.md`
 - Create GitHub releases
 
-Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) when committing to enable this.
+To use it effectively, follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
 ## 📄 License
 

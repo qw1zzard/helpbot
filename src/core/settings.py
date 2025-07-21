@@ -1,48 +1,49 @@
+from functools import lru_cache
+from pathlib import Path
+
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def load_prompt(path: str) -> str:
+    """Load a prompt from a .md or .txt file."""
+    prompt_path = Path(path)
+
+    if not prompt_path.is_file():
+        raise FileNotFoundError(f'Prompt file not found: {prompt_path.resolve()}')
+
+    return prompt_path.read_text(encoding='utf-8').strip()
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
 
-    chat_model_name: str = Field()
-    embed_model_name: str = Field()
+    chat_model_name: str = Field(default='gemma3:1b')
+    embed_model_name: str = Field(default='ai-forever/ru-en-RoSBERTa')
 
-    device: str = Field()
-    temperature: float = Field()
+    device: str = Field(default='cpu')
+    temperature: float = Field(default=0.5)
 
-    qdrant_url: str = Field()
-    collection_name: str = Field()
-    search_type: str = Field()
-    num_answers: int = Field()
-    lambda_mult: float = Field()
+    qdrant_url: str = Field(default='http://qdrant:6333')
+    collection_name: str = Field(default='helpbot')
+    search_type: str = Field(default='mrr')
+    num_answers: int = Field(default=5)
+    lambda_mult: float = Field(default=0.25)
 
-    csv_name: str = Field()
+    csv_name: str = Field(default='data.csv')
 
-    postgres_host: str = Field()
-    postgres_port: int = Field()
-    postgres_user: str = Field()
-    postgres_password: str = Field()
-    postgres_db: str = Field()
+    postgres_host: str = Field(default='helpbot')
+    postgres_port: int = Field(default=5432)
+    postgres_user: str = Field(default='helpbot')
+    postgres_password: str = Field(default='helpbot')
+    postgres_db: str = Field(default='helpbot')
 
-    contextualize_q_system_prompt: str = Field("""
-        Given a chat history and the latest user question which might reference
-        context in the chat history, formulate a standalone question which can be
-        understood without the chat history. Do NOT answer the question, just
-        reformulate it if needed and otherwise return it as is.
-    """)
+    telegram_token: str = Field(default='dummy-token')
 
-    system_prompt: str = Field(
-        """
-        You are an internal technical support assistant for employees of a large company. 
+    context_prompt: str = load_prompt('prompts/context.md')
+    system_prompt: str = load_prompt('prompts/system.md')
 
-        1. Use the entire conversation history with the user to understand the context of the inquiry.
-        2. Incorporate the pieces of information retrieved from the knowledge base,
-            which consists of pairs of questions (user inquiries) and fixed answers (responses).
-        3. Based on the current conversation, choose the most relevant question from
-            the retrieved pairs, and respond with the corresponding fixed answer from the knowledge base.
-        4. You must provide responses exactly as they appear in the knowledge base,
-            without any modifications. All responses must be in Russian.
-        """
-        '\n\n{context}'
-    )
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()  # type: ignore

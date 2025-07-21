@@ -1,19 +1,17 @@
 [project]
 name = "helpbot"
-version = "1"
-description = "Q&A assistant powered by FastAPI, Streamlit, LangChain, and Ollama"
+version = "1.0.0"
+description = "Q&A assistant powered by FastAPI, Streamlit, Ollama and Qdrant"
 
 dependencies = [
+    "aiogram>=3.21.0",
     "asyncpg>=0.29.0",
-    "extra-streamlit-components>=0.1.80",
     "fastapi>=0.115.12",
-    "langchain>=0.3.24",
-    "langchain-community>=0.3.23",
-    "langchain-huggingface>=0.1.2",
-    "langchain-ollama>=0.3.2",
-    "langchain-qdrant>=0.2.0",
     "more-itertools>=10.7.0",
+    "pydantic-settings>=2.10.1",
+    "qdrant-client>=1.15.0",
     "sentence-transformers>=4.1.0",
+    "sqlalchemy>=2.0.41",
     "streamlit>=1.45.0",
     "uvicorn>=0.34.2",
 ]

@@ -2,6 +2,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy.ext.asyncio import AsyncSession
 from src.main import app
 
 
@@ -11,33 +12,19 @@ def client():
 
 
 @pytest.fixture
-def patch_qdrant_get_collections():
-    with patch(
-        'src.core.model.QdrantClient.get_collections',
-        return_value=type('C', (), {'collections': []})(),
+def mock_qdrant():
+    with (
+        patch(
+            'src.core.model.QdrantClient.get_collections',
+            return_value=type('C', (), {'collections': []})(),
+        ),
+        patch('src.core.model.QdrantClient.recreate_collection', return_value=None),
+        patch(
+            'src.core.model.QdrantClient.count',
+            return_value=type('C', (), {'count': 1})(),
+        ),
     ):
         yield
-
-
-@pytest.fixture
-def patch_qdrant_recreate():
-    with patch('src.core.model.QdrantClient.recreate_collection', return_value=None):
-        yield
-
-
-@pytest.fixture
-def patch_qdrant_count():
-    with patch(
-        'src.core.model.QdrantClient.count', return_value=type('C', (), {'count': 1})()
-    ):
-        yield
-
-
-@pytest.fixture
-def mock_qdrant(
-    patch_qdrant_get_collections, patch_qdrant_recreate, patch_qdrant_count
-):
-    pass
 
 
 @pytest.fixture
@@ -66,3 +53,8 @@ def mock_repo_methods():
         ) as mock_add,
     ):
         yield mock_get, mock_add
+
+
+@pytest.fixture
+def mock_session():
+    return AsyncMock(spec=AsyncSession)

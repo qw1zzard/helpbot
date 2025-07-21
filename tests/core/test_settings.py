@@ -10,8 +10,8 @@ def mock_env(monkeypatch):
     monkeypatch.setenv('CSV_NAME', 'data.csv')
     monkeypatch.setenv('COLLECTION_NAME', 'helpbot')
     monkeypatch.setenv('QDRANT_URL', 'http://localhost:6333')
-    monkeypatch.setenv('SYSTEM_PROMPT', 'System')
-    monkeypatch.setenv('CONTEXTUALIZE_Q_SYSTEM_PROMPT', 'Contextualize')
+    monkeypatch.setenv('SYSTEM_PROMPT', 'system prompt')
+    monkeypatch.setenv('CONTEXT_PROMPT', 'context prompt')
     monkeypatch.setenv('SEARCH_TYPE', 'mmr')
     monkeypatch.setenv('NUM_ANSWERS', '3')
     monkeypatch.setenv('LAMBDA_MULT', '0.8')
@@ -27,8 +27,8 @@ def test_settings_parsing(mock_env):
     assert settings.csv_name == 'data.csv'
     assert settings.collection_name == 'helpbot'
     assert settings.qdrant_url == 'http://localhost:6333'
-    assert settings.system_prompt == 'System'
-    assert settings.contextualize_q_system_prompt == 'Contextualize'
+    assert settings.system_prompt == 'system prompt'
+    assert settings.context_prompt == 'context prompt'
     assert settings.search_type == 'mmr'
     assert settings.num_answers == 3
     assert settings.lambda_mult == 0.8
