@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.1.0](https://github.com/qw1zzard/helpbot/compare/v1.0.1...v1.1.0) (2025-07-21)
+
+
+### Features
+
+* add session decorator and validation exception handler ([d3241f2](https://github.com/qw1zzard/helpbot/commit/d3241f2582a7b885c1d82d08ec396618ccf20a48))
+* add Telegram bot connection ([2b3a5f7](https://github.com/qw1zzard/helpbot/commit/2b3a5f7de4eb29af8b57d0489a1b9b2ffebf06ed))
+
+
+### Bug Fixes
+
+* add --system flag in tests action ([b03b506](https://github.com/qw1zzard/helpbot/commit/b03b506f6d2f759ef33e6f131f10aad5711cedf7))
+* add default settings ([bc7e82d](https://github.com/qw1zzard/helpbot/commit/bc7e82d444520d70b85415c2c42d7af70869fd24))
+* don't delete tables, make global_store singleton ([49773e8](https://github.com/qw1zzard/helpbot/commit/49773e8e9314d0d21226ba76557cba8c833cc78f))
+* Telegram bot cannot start with Streamlit ([9aec8bb](https://github.com/qw1zzard/helpbot/commit/9aec8bb7a83e3ec50effa56f6b28516c425797ca))
+
 ## [1.0.1](https://github.com/qw1zzard/helpbot/compare/v1.0.0...v1.0.1) (2025-07-13)
 
 
