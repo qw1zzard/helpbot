@@ -20,7 +20,7 @@ def test_extract_user_input_raises_if_no_user():
 
 
 def test_get_answer_endpoint(
-    client, mock_qdrant_and_embedding, mock_repo_get_add, mock_ollama_response
+    client, mock_qdrant_and_embedding, mock_repo_get_add, mock_requests_post
 ):
     payload = {
         'session_id': 'test-session',

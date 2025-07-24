@@ -13,8 +13,8 @@ async def test_lifespan_starts_components():
 
     with (
         patch('src.main.create_tables', mock_create_tables),
-        patch('src.main.recreate_collection_if_needed', mock_recreate),
-        patch('src.main.populate_if_empty', mock_populate),
+        patch('src.main.recreate_collection', mock_recreate),
+        patch('src.main.fill_collection', mock_populate),
     ):
         async with lifespan(FastAPI()):
             pass

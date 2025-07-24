@@ -1,4 +1,3 @@
-from functools import lru_cache
 from pathlib import Path
 
 from pydantic import Field
@@ -6,7 +5,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 def load_prompt(path: str) -> str:
-    """Load a prompt from a .md or .txt file."""
     prompt_path = Path(path)
 
     if not prompt_path.is_file():
@@ -44,6 +42,5 @@ class Settings(BaseSettings):
     system_prompt: str = load_prompt('prompts/system.md')
 
 
-@lru_cache
 def get_settings() -> Settings:
     return Settings()

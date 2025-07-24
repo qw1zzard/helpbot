@@ -29,7 +29,7 @@ def load_csv_documents(file_path: str) -> list[dict]:
     return documents
 
 
-def recreate_collection_if_needed():
+def recreate_collection() -> None:
     if collection_name not in [
         c.name for c in qdrant_client.get_collections().collections
     ]:
@@ -40,29 +40,31 @@ def recreate_collection_if_needed():
         )
 
 
-def populate_if_empty():
+def fill_collection() -> None:
     count = qdrant_client.count(collection_name=collection_name).count
-    if count == 0:
-        rows = load_csv_documents(settings.csv_name)
-        points = []
+    if count > 0:
+        return
 
-        for idx, row in enumerate(rows):
-            text = f'Q: {row["question"]}\nA: {row["answer"]}'
-            vector = embedding_model.encode(text).tolist()
-            points.append(
-                PointStruct(
-                    id=idx,
-                    vector=vector,
-                    payload={
-                        'id': row['id'],
-                        'answer': row['answer'],
-                        'question': row['question'],
-                    },
-                )
+    rows = load_csv_documents(settings.csv_name)
+    points = []
+
+    for idx, row in enumerate(rows):
+        text = f'Q: {row["question"]}\nA: {row["answer"]}'
+        vector = embedding_model.encode(text).tolist()
+        points.append(
+            PointStruct(
+                id=idx,
+                vector=vector,
+                payload={
+                    'id': row['id'],
+                    'answer': row['answer'],
+                    'question': row['question'],
+                },
             )
+        )
 
-        for batch in chunked(points, 3000):
-            qdrant_client.upsert(collection_name=collection_name, points=batch)
+    for batch in chunked(points, 3000):
+        qdrant_client.upsert(collection_name=collection_name, points=batch)
 
 
 def get_rag_answer(session_id: str, user_input: str) -> str:

@@ -40,17 +40,7 @@ def mock_qdrant_and_embedding(mock_qdrant, mock_embedding):
 
 
 @pytest.fixture
-def mock_ollama_response():
-    with patch('src.core.model.requests.post') as mock_post:
-        mock_post.return_value.status_code = 200
-        mock_post.return_value.json.return_value = {
-            'message': {'content': 'mocked answer'}
-        }
-        yield mock_post
-
-
-@pytest.fixture
-def mock_requests_post_success():
+def mock_requests_post():
     with patch('src.core.model.requests.post') as mock_post:
         mock_post.return_value.status_code = 200
         mock_post.return_value.json.return_value = {

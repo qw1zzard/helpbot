@@ -5,15 +5,15 @@ from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from src.api.exceptions import validation_exception_handler
 from src.api.router import router
-from src.core.model import populate_if_empty, recreate_collection_if_needed
+from src.core.model import fill_collection, recreate_collection
 from src.db.database import create_tables
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await create_tables()
-    recreate_collection_if_needed()
-    populate_if_empty()
+    recreate_collection()
+    fill_collection()
     yield
 
 
