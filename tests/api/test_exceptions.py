@@ -6,7 +6,7 @@ from starlette.datastructures import Headers
 
 
 @pytest.mark.asyncio
-async def test_validation_exception_handler():
+async def test_validation_exception_handler_returns_json():
     errors = [
         {
             'type': 'string_type',
@@ -15,14 +15,13 @@ async def test_validation_exception_handler():
             'input': 123,
         }
     ]
+    request = Request(scope={'type': 'http', 'headers': Headers().raw})
     exc = RequestValidationError(errors=errors)
 
-    request = Request(scope={'type': 'http', 'headers': Headers().raw})
-
     response = await validation_exception_handler(request, exc)
-    data = response.body.decode()  # type: ignore
 
     assert response.status_code == 422
     assert response.headers['content-type'] == 'application/json'
-    assert 'Unprocessable Entity' in data
-    assert 'errors' in data
+    body = response.body.decode()  # type: ignore
+    assert 'Unprocessable Entity' in body
+    assert 'errors' in body

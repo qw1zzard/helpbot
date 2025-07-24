@@ -7,39 +7,34 @@ from src.core.model import (
 )
 
 
-def test_session_history_persistence():
-    session_id = 'test'
-    h1 = ChatHistoryStore.get_history(session_id)
-    h2 = ChatHistoryStore.get_history(session_id)
+def test_session_history_is_singleton():
+    h1 = ChatHistoryStore.get_history('test')
+    h2 = ChatHistoryStore.get_history('test')
     assert h1 is h2
 
 
-def test_add_message():
+def test_add_message_to_history():
     session_id = 'test'
     ChatHistoryStore.add_message(session_id, 'user', 'hello')
-    assert ChatHistoryStore.get_history(session_id)[-1] == {
-        'role': 'user',
-        'content': 'hello',
-    }
+    last_message = ChatHistoryStore.get_history(session_id)[-1]
+    assert last_message == {'role': 'user', 'content': 'hello'}
 
 
-def test_get_rag_answer(mock_qdrant_and_embed, mock_ollama_post):
+def test_get_rag_answer_returns_mock(mock_qdrant_and_embedding, mock_ollama_response):
     answer = get_rag_answer('test-session', 'What is this?')
     assert answer == 'mocked answer'
 
 
-def test_recreate_collection_if_needed(mock_qdrant_and_embed):
-    recreate_collection_if_needed()  # just ensuring no exceptions
+def test_recreate_collection_if_needed_does_not_raise(mock_qdrant_and_embedding):
+    recreate_collection_if_needed()
 
 
-def test_populate_if_empty(mock_qdrant_and_embed, monkeypatch):
-    pd.DataFrame(
-        {
-            'id': 1,
-            'question': ['What?'],
-            'answer': ['Test answer'],
-        }
-    ).to_csv('data.csv', index=False)
-    monkeypatch.setenv('CSV_NAME', str('data.csv'))
+def test_populate_if_empty_reads_csv(tmp_path, monkeypatch, mock_qdrant_and_embedding):
+    df = pd.DataFrame({'id': [1], 'question': ['What?'], 'answer': ['Test answer']})
+
+    test_csv = tmp_path / 'data.csv'
+    df.to_csv(test_csv, index=False)
+
+    monkeypatch.setenv('CSV_NAME', str(test_csv))
 
     populate_if_empty()
