@@ -20,16 +20,20 @@ def test_add_message_to_history():
     assert last_message == {'role': 'user', 'content': 'hello'}
 
 
-def test_get_rag_answer_returns_mock(mock_qdrant_and_embedding, mock_ollama_response):
+def test_get_rag_answer_returns_mock(
+    mock_qdrant, mock_embedding, mock_requests_post_success
+):
     answer = get_rag_answer('test-session', 'What is this?')
     assert answer == 'mocked answer'
 
 
-def test_recreate_collection_if_needed_does_not_raise(mock_qdrant_and_embedding):
+def test_recreate_collection_if_needed(mock_qdrant, mock_embedding):
     recreate_collection_if_needed()
 
 
-def test_populate_if_empty_reads_csv(tmp_path, monkeypatch, mock_qdrant_and_embedding):
+def test_populate_if_empty_reads_csv(
+    tmp_path, monkeypatch, mock_qdrant, mock_embedding
+):
     df = pd.DataFrame({'id': [1], 'question': ['What?'], 'answer': ['Test answer']})
 
     test_csv = tmp_path / 'data.csv'

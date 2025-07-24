@@ -20,19 +20,37 @@ def mock_session():
 
 
 @pytest.fixture
-def mock_qdrant_and_embedding():
-    with (
-        patch('src.core.model.qdrant_client') as mock_qdrant,
-        patch('src.core.model.embedding_model') as mock_embed,
-    ):
-        mock_embed.encode.return_value = np.ones(384) * 0.1
+def mock_qdrant():
+    with patch('src.core.model.qdrant_client') as mock_qdrant:
         mock_qdrant.get_collections.return_value.collections = []
         mock_qdrant.count.return_value.count = 0
-        yield mock_qdrant, mock_embed
+        yield mock_qdrant
+
+
+@pytest.fixture
+def mock_embedding():
+    with patch('src.core.model.embedding_model') as mock_embed:
+        mock_embed.encode.return_value = np.ones(384) * 0.1
+        yield mock_embed
+
+
+@pytest.fixture
+def mock_qdrant_and_embedding(mock_qdrant, mock_embedding):
+    yield mock_qdrant, mock_embedding
 
 
 @pytest.fixture
 def mock_ollama_response():
+    with patch('src.core.model.requests.post') as mock_post:
+        mock_post.return_value.status_code = 200
+        mock_post.return_value.json.return_value = {
+            'message': {'content': 'mocked answer'}
+        }
+        yield mock_post
+
+
+@pytest.fixture
+def mock_requests_post_success():
     with patch('src.core.model.requests.post') as mock_post:
         mock_post.return_value.status_code = 200
         mock_post.return_value.json.return_value = {

@@ -19,10 +19,10 @@ def test_streamlit_app_main(
     mock_startup_ui,
     mock_chat_input,
     mock_resp_gen,
-    mock_requests_post,
+    mock_requests_post_success,
     clear_streamlit_state,
 ):
-    mock_requests_post.return_value = MagicMock(
+    mock_requests_post_success.return_value = MagicMock(
         status_code=200, json=lambda: {'answer': 'Answer'}
     )
 
