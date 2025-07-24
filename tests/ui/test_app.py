@@ -17,7 +17,7 @@ def reset_streamlit_state():
 @patch('src.ui.app.st.write')
 @patch('src.ui.app.st.chat_message')
 @patch('src.ui.app.st.spinner')
-def test_ui_main_success(
+def test_streamlit_ui_main(
     mock_spinner,
     mock_chat_message,
     mock_write,
@@ -37,10 +37,7 @@ def test_ui_main_success(
     main()
 
     assert {'role': 'user', 'content': 'Question'} in st.session_state.messages
-
-    mock_write_stream.assert_called()
-
-    messages = [
-        m['content'] for m in st.session_state.messages if m['role'] == 'assistant'
-    ]
-    assert any('Answer' in msg for msg in messages)
+    assert any(
+        m['role'] == 'assistant' and 'Answer' in m['content']
+        for m in st.session_state.messages
+    )

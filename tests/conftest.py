@@ -1,6 +1,9 @@
+from datetime import datetime
 from unittest.mock import AsyncMock, patch
 
+import numpy as np
 import pytest
+import streamlit as st
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.main import app
@@ -12,49 +15,45 @@ def client():
 
 
 @pytest.fixture
-def mock_qdrant():
+def mock_session():
+    return AsyncMock(spec=AsyncSession)
+
+
+@pytest.fixture
+def mock_qdrant_and_embed():
     with (
-        patch(
-            'src.core.model.QdrantClient.get_collections',
-            return_value=type('C', (), {'collections': []})(),
-        ),
-        patch('src.core.model.QdrantClient.recreate_collection', return_value=None),
-        patch(
-            'src.core.model.QdrantClient.count',
-            return_value=type('C', (), {'count': 1})(),
-        ),
+        patch('src.core.model.qdrant_client') as mock_qdrant,
+        patch('src.core.model.embedding_model') as mock_embed,
     ):
-        yield
+        mock_embed.encode.return_value = np.array([0.1]) * 384
+        mock_qdrant.get_collections.return_value.collections = []
+        mock_qdrant.count.return_value.count = 0
+        yield mock_qdrant, mock_embed
 
 
 @pytest.fixture
-def mock_embed():
-    with patch(
-        'src.core.model.HuggingFaceEmbeddings.embed_query', return_value=[0.0] * 384
-    ):
-        yield
-
-
-@pytest.fixture
-def mock_ollama():
-    with patch('src.core.model.ChatOllama'):
-        yield
+def mock_ollama_post():
+    with patch('src.core.model.requests.post') as mock_post:
+        mock_post.return_value.status_code = 200
+        mock_post.return_value.json.return_value = {
+            'message': {'content': 'mocked answer'}
+        }
+        yield mock_post
 
 
 @pytest.fixture
 def mock_repo_methods():
+    mock_get = AsyncMock()
+    mock_get.return_value = type('S', (), {'timestamp': datetime.now()})()
+
+    mock_add = AsyncMock()
     with (
-        patch(
-            'src.db.repository.SessionRepository._get_last_session',
-            new_callable=AsyncMock,
-        ) as mock_get,
-        patch(
-            'src.db.repository.SessionRepository._add_session', new_callable=AsyncMock
-        ) as mock_add,
+        patch('src.db.repository.SessionRepository._get_last_session', mock_get),
+        patch('src.db.repository.SessionRepository._add_session', mock_add),
     ):
         yield mock_get, mock_add
 
 
 @pytest.fixture
-def mock_session():
-    return AsyncMock(spec=AsyncSession)
+def reset_streamlit_state():
+    st.session_state.clear()

@@ -20,7 +20,7 @@ def mock_env(monkeypatch):
 
 
 def test_settings_parsing(mock_env):
-    settings = Settings()  # type: ignore
+    settings = Settings()
     assert settings.chat_model_name == 'test-model'
     assert settings.embed_model_name == 'test-embed'
     assert settings.device == 'cpu'
