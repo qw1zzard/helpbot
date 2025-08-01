@@ -15,7 +15,7 @@ def startup_page_ui() -> str:
     return st.session_state.session_id
 
 
-def add_message(role: str, content: str):
+def add_message(role: str, content: str) -> None:
     st.session_state.messages.append({'role': role, 'content': content})
 
 
@@ -25,7 +25,7 @@ def response_generator(response: str):
         time.sleep(0.05)
 
 
-def main():
+def main() -> None:
     session_id = startup_page_ui()
 
     if 'messages' not in st.session_state:

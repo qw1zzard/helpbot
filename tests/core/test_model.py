@@ -1,34 +1,46 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
+import pandas as pd
 from src.core.history import ChatHistoryStore
-from src.core.model import get_rag_answer
+from src.core.model import (
+    fill_collection,
+    get_rag_answer,
+    recreate_collection,
+)
+from src.core.settings import Settings
 
 
-def test_session_history_persistence():
-    session_id = 'test-session'
-    history_store = ChatHistoryStore()
-    history_1 = history_store.get_history(session_id)
-    history_2 = history_store.get_history(session_id)
-    assert history_1 is history_2
+def test_session_history_is_singleton():
+    h1 = ChatHistoryStore.get_history('test')
+    h2 = ChatHistoryStore.get_history('test')
+    assert h1 is h2
 
 
-@patch('src.core.model.embedding_model')
-@patch('src.core.model.qdrant_client')
-@patch('src.core.model.requests.post')
-def test_get_rag_answer_output(mock_post, mock_qdrant, mock_embed):
-    mock_embed.encode.return_value = [0.1] * 384
+def test_add_message_to_history():
+    session_id = 'test'
+    ChatHistoryStore.add_message(session_id, 'user', 'hello')
+    last_message = ChatHistoryStore.get_history(session_id)[-1]
+    assert last_message == {'role': 'user', 'content': 'hello'}
 
-    mock_qdrant.search.return_value = [
-        MagicMock(payload={'answer': 'Answer 1'}),
-        MagicMock(payload={'answer': 'Answer 2'}),
-    ]
 
-    mock_post.return_value.status_code = 200
-    mock_post.return_value.json.return_value = {'message': {'content': '42'}}
+def test_get_rag_answer_returns_mock(mock_qdrant, mock_embedding, mock_requests_post):
+    answer = get_rag_answer('test-session', 'What is this?')
+    assert answer == 'mocked answer'
 
-    response = get_rag_answer('test-session', "What's the answer?")
-    assert response == '42'
 
-    history = ChatHistoryStore().get_history('test-session')
-    assert history[-1]['role'] == 'assistant'
-    assert history[-1]['content'] == '42'
+def test_recreate_collection(mock_qdrant, mock_embedding):
+    recreate_collection()
+
+
+def test_populate_reads_csv(tmp_path, monkeypatch, mock_qdrant, mock_embedding):
+    df = pd.DataFrame({'id': [1], 'question': ['What?'], 'answer': ['Test answer']})
+
+    test_csv = tmp_path / 'data.csv'
+    df.to_csv(test_csv, index=False)
+
+    new_settings = Settings.model_construct(
+        _env_file=None, _env_file_encoding=None, csv_name=str(test_csv)
+    )
+
+    with patch('src.core.model.settings', new_settings):
+        fill_collection()
