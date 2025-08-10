@@ -66,3 +66,19 @@ async def test_handle_user_message_api_error(mock_client_session):
 
     mock_message.answer.assert_called()
     assert 'Something went wrong' in mock_message.answer.call_args[0][0]
+
+
+@pytest.mark.asyncio
+@patch('src.telegram.bot.aiohttp.ClientSession')
+async def test_handle_user_message_exception(mock_client_session):
+    from src.telegram import bot
+
+    mock_client_session.return_value.__aenter__.return_value.post.side_effect = (
+        Exception('boom')
+    )
+    msg = AsyncMock()
+    msg.text = 'hi'
+    msg.answer = AsyncMock()
+    await bot.handle_user_message(msg)
+    msg.answer.assert_called()
+    assert 'Error' in msg.answer.call_args[0][0]

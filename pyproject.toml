@@ -5,6 +5,7 @@ description = "Q&A assistant powered by FastAPI, Streamlit, Ollama and Qdrant"
 
 dependencies = [
     "aiogram>=3.21.0",
+    "alembic>=1.16.4",
     "asyncpg>=0.29.0",
     "fastapi>=0.115.12",
     "more-itertools>=10.7.0",

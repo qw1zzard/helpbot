@@ -1,6 +1,8 @@
+import csv
 from unittest.mock import patch
 
 import pandas as pd
+from src.core import model
 from src.core.history import ChatHistoryStore
 from src.core.model import (
     fill_collection,
@@ -44,3 +46,25 @@ def test_populate_reads_csv(tmp_path, monkeypatch, mock_qdrant, mock_embedding):
 
     with patch('src.core.model.settings', new_settings):
         fill_collection()
+
+
+def test_load_csv_documents_reads_file(tmp_path):
+    file_path = tmp_path / 'test.csv'
+    with open(file_path, 'w', encoding='utf-8', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=['id', 'question', 'answer'])
+        writer.writeheader()
+        writer.writerow({'id': '1', 'question': 'Q1', 'answer': 'A1'})
+    docs = model.load_csv_documents(str(file_path))
+    assert docs == [{'id': '1', 'question': 'Q1', 'answer': 'A1'}]
+
+
+def test_recreate_collection_skips_if_exists(mock_qdrant, mock_embedding):
+    mock_qdrant.get_collections.return_value.collections = [
+        type('C', (), {'name': model.collection_name})()
+    ]
+    model.recreate_collection()
+
+
+def test_fill_collection_skips_when_nonempty(mock_qdrant, mock_embedding):
+    mock_qdrant.count.return_value.count = 5
+    model.fill_collection()
