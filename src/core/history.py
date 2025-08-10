@@ -6,5 +6,5 @@ class ChatHistoryStore:
         return cls._store.setdefault(session_id, [])
 
     @classmethod
-    def add_message(cls, session_id: str, role: str, content: str):
+    def add_message(cls, session_id: str, role: str, content: str) -> None:
         cls.get_history(session_id).append({'role': role, 'content': content})

@@ -16,7 +16,7 @@ router = Router()
 
 
 @router.message(F.text)
-async def handle_user_message(message: Message):
+async def handle_user_message(message: Message) -> None:
     user_input = message.text
     session_id = str(uuid4())
 
@@ -38,7 +38,7 @@ async def handle_user_message(message: Message):
             await message.answer(f'Error: {e}')
 
 
-def start_telegram_bot():
+def start_telegram_bot() -> None:
     dp.include_router(router)
     logging.basicConfig(level=logging.INFO)
 
