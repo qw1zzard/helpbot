@@ -29,5 +29,6 @@ class SessionRepository:
     @classmethod
     async def update_session(cls, session_id: str, session: AsyncSession) -> None:
         last = await cls._get_last_session(session_id, session)
+
         if not last or datetime.now() - last.timestamp > timedelta(minutes=30):
             await cls._add_session(session_id, session)

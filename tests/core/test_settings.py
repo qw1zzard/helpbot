@@ -1,9 +1,22 @@
 import pytest
-from src.core.settings import Settings
+from src.core.settings import Settings, load_prompt
+
+
+def test_load_prompt_from_file(tmp_path):
+    prompt_file = tmp_path / 'prompt.md'
+    prompt_file.write_text('Test prompt content', encoding='utf-8')
+
+    content = load_prompt(str(prompt_file))
+    assert content == 'Test prompt content'
+
+
+def test_load_prompt_missing_file(tmp_path):
+    with pytest.raises(FileNotFoundError):
+        load_prompt(str(tmp_path / 'missing.md'))
 
 
 @pytest.fixture
-def mock_env(monkeypatch):
+def env_vars(monkeypatch):
     monkeypatch.setenv('CHAT_MODEL_NAME', 'test-model')
     monkeypatch.setenv('EMBED_MODEL_NAME', 'test-embed')
     monkeypatch.setenv('DEVICE', 'cpu')
@@ -16,11 +29,10 @@ def mock_env(monkeypatch):
     monkeypatch.setenv('NUM_ANSWERS', '3')
     monkeypatch.setenv('LAMBDA_MULT', '0.8')
     monkeypatch.setenv('TEMPERATURE', '0.2')
-    yield
 
 
-def test_settings_parsing(mock_env):
-    settings = Settings()  # type: ignore
+def test_settings_parses_env_vars(env_vars):
+    settings = Settings()
     assert settings.chat_model_name == 'test-model'
     assert settings.embed_model_name == 'test-embed'
     assert settings.device == 'cpu'
